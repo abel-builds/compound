@@ -1,5 +1,18 @@
 # Demo GIF script
 
+The current `docs/assets/demo.gif` is generated **programmatically** by `scripts/build-demo-gif.mjs` — no recording needed. Regenerate with:
+
+```bash
+npm install --no-save @napi-rs/canvas gif-encoder-2
+node scripts/build-demo-gif.mjs
+```
+
+Output: `docs/assets/demo.gif`, 800×500, 18 fps, ~0.3 MB, ~10s loop.
+
+The rest of this document describes how to record a REAL terminal-captured version if you prefer to replace the synthetic one (v0.1.1+).
+
+---
+
 Recipe to record the 30-second `README` demo. Target: under 5 MB, 800×500, 15 fps.
 
 ## Setup

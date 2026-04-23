@@ -25,8 +25,7 @@ It's not session memory. It's a knowledge base — markdown files, Obsidian-comp
 ### 30-second demo
 
 <p align="center">
-  <!-- Replace this placeholder with the actual demo GIF once recorded -->
-  <em>Demo GIF coming in v0.1.1. See <code>docs/demo-script.md</code> for how we record it.</em>
+  <img src="docs/assets/demo.gif" alt="compound 10-second demo: drop a source into vault/raw/, Claude auto-compiles into vault/wiki/, logs the mutation." width="800">
 </p>
 
 ### Why it's different
