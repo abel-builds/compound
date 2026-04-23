@@ -4,8 +4,8 @@
   "description": "A Karpathy-style LLM knowledge base for Claude Code. Your LLM owns the wiki.",
   "author": "Disi & Di",
   "license": "MIT",
-  "homepage": "https://github.com/<user>/compound",
-  "repository": "https://github.com/<user>/compound",
+  "homepage": "https://github.com/abel-builds/compound",
+  "repository": "https://github.com/abel-builds/compound",
   "keywords": [
     "claude-code",
     "knowledge-base",

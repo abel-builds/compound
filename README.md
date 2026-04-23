@@ -46,7 +46,7 @@ Plus: zero-config default, organic category emergence, Obsidian-native, MIT lice
 
 ```bash
 # In any project directory:
-git clone https://github.com/<user>/compound.git
+git clone https://github.com/abel-builds/compound.git
 cd compound
 bash scripts/setup.sh       # macOS/Linux
 # or
@@ -55,8 +55,8 @@ bash scripts/setup.sh       # macOS/Linux
 
 Or directly from an existing Claude Code project:
 ```bash
-npx github:<user>/compound init        # installs vault in current dir
-npx github:<user>/compound init --global # installs vault at ~/vault/ (recommended)
+npx github:abel-builds/compound init        # installs vault in current dir
+npx github:abel-builds/compound init --global # installs vault at ~/vault/ (recommended)
 ```
 
 Requires: Claude Code installed, Node 18+. Obsidian recommended as viewer.
@@ -175,7 +175,7 @@ Más: zero-config por default, categorías que emergen orgánicamente, Obsidian-
 ### Instalación
 
 ```bash
-git clone https://github.com/<user>/compound.git
+git clone https://github.com/abel-builds/compound.git
 cd compound
 bash scripts/setup.sh       # macOS/Linux
 # o
