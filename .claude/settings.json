@@ -1,0 +1,26 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/herramientas/vault-session-start.mjs\" 2>/dev/null",
+            "timeout": 15
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/herramientas/vault-check.mjs\" 2>/dev/null",
+            "timeout": 15
+          }
+        ]
+      }
+    ]
+  }
+}

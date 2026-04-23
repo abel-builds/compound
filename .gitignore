@@ -1,0 +1,39 @@
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editors
+.vscode/
+.idea/
+*.swp
+*~
+
+# Claude Code local settings (user overrides)
+.claude/settings.local.json
+
+# Vault user content — each user fills their own, repo ships empty structure
+# Uncomment the lines below if you want to share your vault publicly:
+vault/raw/*
+!vault/raw/.gitkeep
+!vault/raw/README.md
+vault/wiki/*
+!vault/wiki/.gitkeep
+!vault/wiki/README.md
+!vault/wiki/_master-index.md
+!vault/wiki/negocios/
+!vault/wiki/ai-herramientas/
+!vault/wiki/personal/
+vault/output/*
+!vault/output/.gitkeep
+
+# Obsidian plugin/workspace state (keep the config shared, skip local caches)
+vault/.obsidian/workspace*
+vault/.obsidian/cache
+vault/.obsidian/plugins/*/data.json
