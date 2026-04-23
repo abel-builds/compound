@@ -27,9 +27,7 @@ vault/wiki/*
 !vault/wiki/.gitkeep
 !vault/wiki/README.md
 !vault/wiki/_master-index.md
-!vault/wiki/negocios/
-!vault/wiki/ai-herramientas/
-!vault/wiki/personal/
+!vault/wiki/knowledge/
 vault/output/*
 !vault/output/.gitkeep
 
