@@ -5,6 +5,7 @@
 // Output: docs/assets/demo.gif (800x500, ~10s, <2MB target).
 
 import { createCanvas, GlobalFonts } from "@napi-rs/canvas";
+import sharp from "sharp";
 import GIFEncoderMod from "gif-encoder-2";
 const GIFEncoder = GIFEncoderMod.default || GIFEncoderMod;
 import { writeFile, mkdir } from "node:fs/promises";
@@ -169,9 +170,10 @@ function drawTitleCard(ctx, t) {
 const SCENE_S = 9.8;
 const TOTAL_FRAMES = Math.ceil(SCENE_S * FPS);
 
-export function frame(t) {
-  const canvas = createCanvas(W, H);
-  const ctx = canvas.getContext("2d");
+export function frameCtx(t) {
+  const _canvas = createCanvas(W, H);
+  const ctx = _canvas.getContext("2d");
+  ctx._canvas = _canvas;
 
   // dark bg with subtle dot pattern
   ctx.fillStyle = C.bg;
@@ -185,7 +187,7 @@ export function frame(t) {
   if (t < 1.2) {
     const localT = t / 1.2;
     drawTitleCard(ctx, localT);
-    return canvas.toBuffer("image/png");
+    return ctx;
   }
 
   // Panels appear
@@ -224,7 +226,7 @@ export function frame(t) {
 
   ctx.restore();
 
-  if (t < 2.0) return canvas.toBuffer("image/png");
+  if (t < 2.0) return ctx;
 
   // --- Source drops into raw/ ---
   // Animate: karpathy-thread.md appears in left panel with a soft slide-in
@@ -379,7 +381,12 @@ export function frame(t) {
     ctx.restore();
   }
 
-  return canvas.toBuffer("image/png");
+  return ctx;
+}
+
+export function frame(t) {
+  const ctx = frameCtx(t);
+  return ctx._canvas.toBuffer("image/png");
 }
 
 if (!process.env.DEMO_PREVIEW_ONLY) {
@@ -391,18 +398,25 @@ enc.setQuality(10);
 enc.setRepeat(0);  // loop forever
 enc.start();
 
+// Decode each frame PNG via sharp to raw RGB (no alpha); gif-encoder-2 handles
+// RGB input cleanly even though its docs are ambiguous about alpha.
 for (let f = 0; f < TOTAL_FRAMES; f++) {
   const t = f / FPS;
   const pngBuf = frame(t);
-  // gif-encoder-2 wants RGBA pixel data. Decode the PNG via canvas once more:
-  const cv = createCanvas(W, H);
-  const ctx = cv.getContext("2d");
-  const { Image } = await import("@napi-rs/canvas");
-  const img = new Image();
-  img.src = pngBuf;
-  ctx.drawImage(img, 0, 0, W, H);
-  const imgData = ctx.getImageData(0, 0, W, H).data;
-  enc.addFrame(imgData);
+  const { data } = await sharp(pngBuf)
+    .flatten({ background: "#0A0E1A" })  // burn alpha → opaque bg
+    .raw()
+    .toBuffer({ resolveWithObject: true });
+  // data is RGB (no alpha because of flatten). gif-encoder-2 expects RGBA;
+  // reinflate with alpha=255.
+  const rgba = new Uint8ClampedArray(W * H * 4);
+  for (let i = 0, j = 0; i < data.length; i += 3, j += 4) {
+    rgba[j] = data[i];
+    rgba[j+1] = data[i+1];
+    rgba[j+2] = data[i+2];
+    rgba[j+3] = 255;
+  }
+  enc.addFrame(rgba);
   if (f % 20 === 0) console.log(`  ${f}/${TOTAL_FRAMES} frames (t=${t.toFixed(2)}s)`);
 }
 
