@@ -8,16 +8,21 @@ compound is a Karpathy-style LLM knowledge base wired into Claude Code. You, Cla
 
 ```
 compound/
-├── CLAUDE.md              ← this file
+├── CLAUDE.md              ← this file (rules for Claude)
 ├── vault/
-│   ├── raw/               ← user drops sources here (articles, clips, notes)
+│   ├── schema.md          ← ← READ THIS FIRST. Defines categories and flows.
+│   ├── log.md             ← append-only activity log. Every mutation logged.
+│   ├── raw/               ← user drops sources here
 │   ├── wiki/              ← YOUR BRAIN. You write and maintain EVERYTHING.
-│   │   ├── _master-index.md   ← table of contents
+│   │   ├── _master-index.md
 │   │   └── <category>/_index.md
 │   ├── output/            ← reports, one-shot query results
-│   └── templates/         ← Obsidian templates (optional)
+│   └── templates/         ← article and category-index templates
+├── .claude/
+│   ├── settings.json      ← hooks wired (SessionStart + SessionEnd)
+│   └── commands/          ← slash commands (/vault-ingest, /vault-query, …)
 ├── herramientas/          ← hook scripts (don't modify unless asked)
-└── .claude/settings.json  ← hooks wired (SessionStart + SessionEnd)
+└── plugin.json            ← Claude Code plugin manifest
 ```
 
 ---
@@ -45,6 +50,9 @@ compound/
 4. If no existing category fits and the topic warrants one (3+ potential articles), create a new category with its own `_index.md`.
 5. Move compiled raw folders to `vault/raw/_archive/<name>/`. The `_archive/` prefix excludes from the "pending" bucket.
 6. Update the relevant `_index.md` files.
+7. Append `vault/log.md`: `[ISO-timestamp] INGEST: <source-file> → <article>.md`.
+
+(See `vault/schema.md` for the full ingest flow.)
 
 ### Health check (on request, or every ~10 sessions)
 1. Review consistency: declared counts vs real counts, stale indexes, broken wikilinks.
@@ -52,6 +60,33 @@ compound/
 3. Suggest new research questions.
 4. Report orphan articles (no inbound links) and dead-end articles (no outbound links).
 5. Impute missing data with web search when possible.
+
+### Query→Wiki (when an answer is worth archiving)
+
+When a user query produces:
+- Original research (web search, multi-source synthesis)
+- A reusable insight worth re-reading in 30 days
+- A non-trivial decision with reasoning
+
+→ Archive the answer as a new wiki article. This is NOT optional when the criterion is met.
+
+1. Write article in `vault/wiki/<category>/<slug>.md` following the article format (see `vault/schema.md`).
+2. Include a "Source query" section with the original question.
+3. Add internal links `[[other-article]]` to related existing articles.
+4. Update category `_index.md`.
+5. Append `vault/log.md`: `[ISO-timestamp] QUERY→WIKI: <topic> → <article>.md`.
+
+Criterion test: "Would I want to re-read this in 30 days?" Yes → archive. No → answer normally, don't pollute the wiki.
+
+### Log every mutation
+
+Every write to `vault/wiki/` MUST append one line to `vault/log.md`:
+
+```
+[2026-04-23T14:00:00Z] TYPE: short description
+```
+
+Valid types: `INGEST | UPDATE | QUERY→WIKI | LINT | SCHEMA | FIX`. See `vault/schema.md` for exact semantics. The log is append-only — never delete or reorder entries.
 
 ---
 
