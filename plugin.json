@@ -1,0 +1,33 @@
+{
+  "name": "compound",
+  "version": "0.1.0",
+  "description": "A Karpathy-style LLM knowledge base for Claude Code. Your LLM owns the wiki.",
+  "author": "Disi & Di",
+  "license": "MIT",
+  "homepage": "https://github.com/<user>/compound",
+  "repository": "https://github.com/<user>/compound",
+  "keywords": [
+    "claude-code",
+    "knowledge-base",
+    "karpathy",
+    "memory",
+    "obsidian",
+    "llm",
+    "vault"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "commands": [
+    "vault-setup",
+    "vault-ingest",
+    "vault-query",
+    "vault-lint",
+    "vault-status",
+    "vault-config"
+  ],
+  "hooks": {
+    "SessionStart": "herramientas/vault-session-start.mjs",
+    "SessionEnd": "herramientas/vault-check.mjs"
+  }
+}
