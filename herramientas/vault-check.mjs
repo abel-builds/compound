@@ -82,6 +82,37 @@ async function main() {
     problems.push(`- _master-index.md is ${diff} min older than newest article (${newestPath.replace(VAULT + "/", "").replace(/\\/g, "/")})`);
   }
 
+  // 4. Log integrity check
+  try {
+    const logPath = join(VAULT, "log.md");
+    const logContent = await readFile(logPath, "utf-8");
+    const entries = logContent.split("\n").filter((l) => l.trim().length > 0 && !l.startsWith("#") && !l.startsWith(">"));
+    const badEntries = [];
+    let lastTimestamp = 0;
+    let backwardsJumps = 0;
+    for (const [i, line] of entries.entries()) {
+      if (!line.startsWith("[")) continue; // skip separators like --- or prose
+      const m = line.match(/^\[(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z)\]\s+(INGEST|UPDATE|QUERY→WIKI|LINT|SCHEMA|FIX):/);
+      if (!m) {
+        badEntries.push(`line ${i + 1}: ${line.slice(0, 80)}`);
+        continue;
+      }
+      const t = Date.parse(m[1]);
+      if (!Number.isNaN(t)) {
+        if (t + 60 * 60 * 1000 < lastTimestamp) backwardsJumps++;
+        lastTimestamp = Math.max(lastTimestamp, t);
+      }
+    }
+    if (badEntries.length > 0) {
+      problems.push(`- log.md has ${badEntries.length} malformed entries:\n    ${badEntries.slice(0, 5).join("\n    ")}`);
+    }
+    if (backwardsJumps > 0) {
+      problems.push(`- log.md has ${backwardsJumps} timestamps going backwards >1h (possible corruption)`);
+    }
+  } catch {
+    // log.md optional — skip if missing
+  }
+
   if (problems.length === 0) {
     process.exit(0);
   }

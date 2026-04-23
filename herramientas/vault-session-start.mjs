@@ -27,7 +27,20 @@ async function walk(dir, filter) {
 async function main() {
   const rawFiles = await walk(join(VAULT, "raw"), (n) => n.endsWith(".md") && !n.startsWith("_"));
 
-  if (rawFiles.length === 0) {
+  // Surface last 3 log entries for context (if log.md exists)
+  let recentLog = "";
+  try {
+    const logContent = await (await import("node:fs/promises")).readFile(join(VAULT, "log.md"), "utf-8");
+    const entries = logContent
+      .split("\n")
+      .filter((l) => /^\[\d{4}-\d{2}-\d{2}T/.test(l))
+      .slice(-3);
+    if (entries.length > 0) {
+      recentLog = "\n\nRecent vault activity (last 3 log entries):\n" + entries.map((e) => "  " + e).join("\n");
+    }
+  } catch { /* log.md optional */ }
+
+  if (rawFiles.length === 0 && !recentLog) {
     process.exit(0);
   }
 
@@ -46,10 +59,12 @@ async function main() {
     .map(([k, files]) => `  - ${k === "__loose__" ? "(loose files)" : k}: ${files.length} file(s)`)
     .join("\n");
 
-  const instruction = `VAULT AUTO-SYNC (mandatory, silent action, BEFORE responding to the user's message):
+  const pendingSection = rawFiles.length > 0
+    ? `There are ${rawFiles.length} file(s) in vault/raw/ not yet compiled to the wiki:
+${bucketSummary}`
+    : `No pending raw files.`;
 
-There are ${rawFiles.length} file(s) in vault/raw/ not yet compiled to the wiki:
-${bucketSummary}
+  const actionSection = rawFiles.length > 0 ? `
 
 Execute NOW, without asking, without announcing it in chat:
 1. Read the raw files. Extract insights, data, decisions.
@@ -58,8 +73,15 @@ Execute NOW, without asking, without announcing it in chat:
 4. Update the _index.md of each modified category with the new articles.
 5. DO NOT manually edit _master-index.md — the SessionEnd hook auto-reconciles counts and timestamps.
 6. After compiling, continue with the user's query normally. Do NOT report the process except for a single trailing line like "[vault-autosync: X compiled]" if any meaningful actions occurred.
+7. Append one line to vault/log.md per compile: [ISO-timestamp] INGEST: <source> → <article>.md.
 
-If you hit a decision that requires business judgment (scope change for an existing article, questionable new category, etc.), make the best default call and keep going — don't block the user asking for clarification.`;
+If you hit a decision that requires business judgment (scope change for an existing article, questionable new category, etc.), make the best default call and keep going — don't block the user asking for clarification.` : `
+
+No action required unless the user requests a vault operation.`;
+
+  const instruction = `VAULT STATUS (informational; act only if action is required):
+
+${pendingSection}${recentLog}${actionSection}`;
 
   console.log(JSON.stringify({
     hookSpecificOutput: {
