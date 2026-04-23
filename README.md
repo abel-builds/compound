@@ -22,7 +22,7 @@
 
 It's not session memory. It's a knowledge base — markdown files, Obsidian-compatible, fully transparent, LLM-maintained.
 
-### 30-second demo
+### 10-second demo
 
 <p align="center">
   <img src="docs/assets/demo.gif" alt="compound 10-second demo: drop a source into vault/raw/, Claude auto-compiles into vault/wiki/, logs the mutation." width="800">

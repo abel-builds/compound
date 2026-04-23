@@ -110,9 +110,8 @@ function drawProgressDot(ctx, x, y, phase) {
 
 function drawTitleCard(ctx, t) {
   // fade in title, fade out at end
-  const fadeIn = easeOutCubic(Math.min(1, t / 0.35));
-  const fadeOut = easeOutCubic(Math.min(1, Math.max(0, (t - 0.65) / 0.35)));
-  const a = fadeIn * (1 - fadeOut);
+  const fadeOut = easeOutCubic(Math.min(1, Math.max(0, (t - 0.75) / 0.25)));
+  const a = 1 - fadeOut;
   if (a <= 0.001) return;
 
   ctx.save();
