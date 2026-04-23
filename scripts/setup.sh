@@ -33,36 +33,29 @@ say "Seeding vault structure..."
 
 mkdir -p vault/raw vault/wiki vault/output vault/templates
 
-# Seed master index if missing
-if [ ! -f vault/wiki/_master-index.md ]; then
-  cat > vault/wiki/_master-index.md <<'EOF'
-# Wiki — Master Index
+# Seed vault files from repo templates if missing
+seed_from_repo() {
+  local src="$1"
+  local dest="$2"
+  if [ ! -f "$dest" ] && [ -f "$src" ]; then
+    mkdir -p "$(dirname "$dest")"
+    cp "$src" "$dest"
+    ok "Seeded $dest"
+  fi
+}
 
-**Last updated:** (auto-maintained by the LLM)
-**Total articles:** 0
-**Total categories:** 0
+REPO_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 
-> This file is maintained automatically. Do not edit manually.
-
----
-
-## Categories
-
-(Empty — categories are created when the first article in a topic is compiled.)
-
-## Recent articles
-
-(Empty.)
-
-## Active projects
-
-(None.)
-EOF
-  ok "Seeded vault/wiki/_master-index.md"
-fi
+seed_from_repo "$REPO_DIR/vault/schema.md" "vault/schema.md"
+seed_from_repo "$REPO_DIR/vault/log.md" "vault/log.md"
+seed_from_repo "$REPO_DIR/vault/wiki/_master-index.md" "vault/wiki/_master-index.md"
+seed_from_repo "$REPO_DIR/vault/wiki/knowledge/_index.md" "vault/wiki/knowledge/_index.md"
+seed_from_repo "$REPO_DIR/vault/wiki/knowledge/welcome.md" "vault/wiki/knowledge/welcome.md"
+seed_from_repo "$REPO_DIR/vault/templates/article.md" "vault/templates/article.md"
+seed_from_repo "$REPO_DIR/vault/templates/category-index.md" "vault/templates/category-index.md"
 
 # Seed .gitkeep files so empty folders survive git
-touch vault/raw/.gitkeep vault/wiki/.gitkeep vault/output/.gitkeep vault/templates/.gitkeep
+touch vault/raw/.gitkeep vault/output/.gitkeep
 
 # Make hook scripts executable
 chmod +x herramientas/*.mjs 2>/dev/null || true
